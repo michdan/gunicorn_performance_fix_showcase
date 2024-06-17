@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "gunicorn test"
+version = "0.1.0"
+description = "evaluate pyparsing for python 3"
+authors = ["Your Name <you@example.com>"]
+license = "\"\""
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+gunicorn = "^22.0.0"
+gevent = "^24.2.1"
+flask = "^3.0.3"
+psutil = "^5.9.8"
+requests = "^2.32.3"
+
+[[tool.poetry.source]]
+name = "pypi.org"
+url = "https://pypi.org/simple/"
+default = true
+secondary = true
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

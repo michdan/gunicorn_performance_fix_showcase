@@ -1,0 +1,70 @@
+version: "3.8"
+
+x-shared: &shared
+  build:
+    context: .
+  stdin_open: true
+  env_file:
+    - .env
+  tty: true
+  restart: on-failure
+  logging:
+    driver: json-file
+    options:
+      max-size: 50k
+
+
+
+services:
+  app_fixed:
+    <<: *shared
+    build:
+      context: app_fixed/
+      dockerfile: Dockerfile
+    command: [ "poetry", "run", "gunicorn" ,"app:create_app()", "-c","gunicorn.py.ini" ]
+    ports:
+        - 8400:8400
+    volumes:
+      - "./app_fixed/:/code/"
+
+  app_with_bug:
+      <<: *shared
+      build:
+        context: app_with_bug/
+        dockerfile: Dockerfile
+      command: [ "poetry", "run", "gunicorn" ,"app:create_app()", "-c","gunicorn.py.ini" ]
+      ports:
+          - 8401:8401
+      volumes:
+        - "./app_with_bug/:/code/"
+
+  client_app_fixed:
+      command: "poetry run python /code/client.py parallel --url app_fixed:8400"
+      build:
+        context: app_fixed/
+        dockerfile: Dockerfile.client
+      depends_on:
+        - app_fixed
+      volumes:
+        - "./app_fixed/:/code/"
+      stdin_open: true
+      env_file:
+        - .env
+      tty: true
+      restart: on-failure
+
+  client_app_with_bug:
+    command: "poetry run python /code/client.py parallel --url app_with_bug:8401"
+    build:
+      context: app_with_bug/
+      dockerfile: Dockerfile.client
+    depends_on:
+      - app_with_bug
+    volumes:
+      - "./app_with_bug/:/code/"
+    stdin_open: true
+    env_file:
+      - .env
+    tty: true
+    restart: on-failure
+
